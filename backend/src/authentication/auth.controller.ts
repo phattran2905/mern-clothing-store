@@ -1,13 +1,13 @@
 import { Response, Request, NextFunction } from "express"
 import bcrypt from "bcrypt"
 import { findUserByEmail, findUserById, updateUserById } from "./auth.model"
-import { Auth } from "./auth.types"
+import { AuthBody } from "./auth.types"
 import jsonwebtoken from "jsonwebtoken"
 import crypto from "crypto"
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { email, password }: Auth = req.body
+		const { email, password }: AuthBody = req.body
 
 		if (!email || !password) {
 			return res
