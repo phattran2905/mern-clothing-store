@@ -17,8 +17,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 		const user = await findUserByEmail(email)
 		// Not existent
 		if (!user) {
-			// return next({ statusCode: 400, message: "Email does not exist." })
-            throw new Error("Email does not exist.")
+			return next({ statusCode: 400, message: "Email does not exist." })
 		}
 		// Check password
 		const correctPassword = bcrypt.compareSync(password, user.hashedPassword!)
