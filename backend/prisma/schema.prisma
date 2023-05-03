@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,32 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-    USER
-    ADMIN
-}
-enum Status {
-    ACTIVE
-    INACTIVE
-}
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  hashedPassword String?
+  id                 Int      @id @default(autoincrement())
+  email              String   @unique
+  createdAt          DateTime @default(now())
+  hashedPassword     String?
   resetPasswordToken String?
-  jsonWebToken String?
-  role Role @default(USER)
-  status Status @default(ACTIVE)
-  profile Profile?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  role               Role     @default(USER)
+  status             Status   @default(ACTIVE)
+  updatedAt          DateTime @default(now()) @updatedAt
+  jsonWebToken       String?
+  profile            Profile?
 }
+
 model Profile {
-  id     Int     @id @default(autoincrement())
-  name    String?
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+  id        Int      @id @default(autoincrement())
+  bio       String?
+  userId    Int      @unique
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  name      String?
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
 }
