@@ -1,15 +1,14 @@
 import { Response, Request, NextFunction } from "express"
 import bcrypt from "bcrypt"
 import { findUserByEmail, findUserById, updateUserById } from "./auth.model"
-import { Auth } from "./auth.types"
+import { AuthBody } from "./auth.types"
 import jsonwebtoken from "jsonwebtoken"
 import crypto from "crypto"
 import { ErrorWithStatusCode } from "../classes/ErrorWithStatusCode"
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { email, password }: Auth = req.body
-
+		const { email, password }: AuthBody = req.body
 		if (!email || !password) {
 			throw new ErrorWithStatusCode(400, "Email and password are required.")
 		}
@@ -19,7 +18,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 		if (!user) {
 			throw new ErrorWithStatusCode(404, "Email does not exist.")
 		}
-
 		// Check password
 		const correctPassword = bcrypt.compareSync(password, user.hashedPassword!)
 
@@ -35,7 +33,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 		return res.status(200).json(updated)
 	} catch (error) {
-		console.log(error)
-        return res.status(500).json({ statusCode: 500, message: "Internal server error." })
+		return next(error)
 	}
 }

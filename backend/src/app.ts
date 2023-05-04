@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import router from './router';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express()
 app.use(helmet())
@@ -16,5 +17,6 @@ app.get("/", (req: Request, res: Response) => {
 })
 
 app.use(router)
+app.use(errorHandler)
 
 export default app
