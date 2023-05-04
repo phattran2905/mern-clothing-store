@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express"
 import bcrypt from "bcrypt"
-import { findUserByEmail, findUserById, updateUserById } from "./auth.model"
+import { findUserByEmail, updateJWT, updateUserById } from "./auth.model"
 import { AuthBody } from "./auth.types"
 import jsonwebtoken from "jsonwebtoken"
 import crypto from "crypto"
@@ -35,4 +35,19 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 	} catch (error) {
 		return next(error)
 	}
+}
+
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = res.locals.user ?? null
+        if (user) {
+            const updated = await updateJWT(user.id, null)
+
+            return res.status(200).json({statusCode: 200, message: "Logged out."})
+        }
+
+        throw new ErrorWithStatusCode(404, "User does not exist.")
+    } catch (error) {
+        return next(error)
+    }
 }

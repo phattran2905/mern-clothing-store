@@ -16,6 +16,9 @@ export const findUserByEmail = (email: string) =>
 		},
 	})
 
+export const updateJWT = (id: string, newJWT: string | null) =>
+	prisma.user.update({ where: { id }, data: { jsonWebToken: newJWT } })
+
 export const updateUserById = (id: string, data: object) =>
 	prisma.user.update({
 		where: {
