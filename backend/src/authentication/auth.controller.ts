@@ -4,31 +4,27 @@ import { findUserByEmail, findUserById, updateUserById } from "./auth.model"
 import { Auth } from "./auth.types"
 import jsonwebtoken from "jsonwebtoken"
 import crypto from "crypto"
+import { ErrorWithStatusCode } from "../classes/ErrorWithStatusCode"
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { email, password }: Auth = req.body
 
 		if (!email || !password) {
-			return res
-				.status(400)
-				.json({ statusCode: 400, message: "Email and password are required." })
+			throw new ErrorWithStatusCode(400, "Email and password are required.")
 		}
 
-		console.log(email, password)
 		const user = await findUserByEmail(email)
-		console.log(user)
-
 		// Not existent
 		if (!user) {
-			return res.status(400).json({ statusCode: 400, message: "Email does not exist." })
+			throw new ErrorWithStatusCode(404, "Email does not exist.")
 		}
 
 		// Check password
 		const correctPassword = bcrypt.compareSync(password, user.hashedPassword!)
 
 		if (!correctPassword) {
-			return res.status(401).json({ statusCode: 401, message: "Password is not correct." })
+			throw new ErrorWithStatusCode(401, "Password is not correct.")
 		}
 
 		// Generate JsonWebToken
