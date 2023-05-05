@@ -16,6 +16,20 @@ export const findUserByEmail = (email: string) =>
 		},
 	})
 
+export const createNewUser = ({
+	email,
+	hashedPassword,
+}: {
+	email: string
+	hashedPassword: string
+}) =>
+	prisma.user.create({
+		data: {
+			email,
+			hashedPassword,
+		},
+	})
+
 export const updateJWT = (id: string, newJWT: string | null) =>
 	prisma.user.update({ where: { id }, data: { jsonWebToken: newJWT } })
 
