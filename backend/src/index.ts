@@ -1,10 +1,10 @@
-import http from "http"
-import app from "./app"
 import { config as loadEnvVars } from "dotenv"
-
 loadEnvVars()
 
-const PORT = process.env.PORT ?? 2907
+import http from "http"
+import { ENV_VARIABLES } from "./config/server"
+import app from "./app"
 
+const PORT = ENV_VARIABLES.PORT
 const server = http.createServer(app)
 server.listen(PORT, () => console.log(`Server: http://localhost:${PORT}`))
