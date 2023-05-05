@@ -1,11 +1,33 @@
 import { Response, Request, NextFunction } from "express"
 import bcrypt from "bcrypt"
-import { findUserByEmail, updateJWT, updateUserById } from "./auth.model"
-import LoginForm from "./auth.schema"
+import { createNewUser, findUserByEmail, updateJWT, updateUserById } from "./auth.model"
+import {LoginForm, SignUpForm} from "./auth.schema"
 import jsonwebtoken from "jsonwebtoken"
 import crypto from "crypto"
 import { ErrorWithStatusCode } from "../classes/ErrorWithStatusCode"
 import { ValidationError } from "../classes/ValidationError"
+
+export const signUp = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const validation = await SignUpForm.safeParseAsync(req.body)
+
+		if (!validation.success) {
+			throw new ValidationError<SignUpForm>(400, validation.error)
+		}
+
+		const { email, password }: SignUpForm = validation.data
+		const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(12))
+		const newUser = await createNewUser({
+			email,
+			hashedPassword,
+		})
+
+		return res.status(201).json(newUser)
+	} catch (error) {
+		return next(error)
+	}
+}
+
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
