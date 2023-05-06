@@ -39,7 +39,7 @@ export const updateAccountRole = (id: string, newRole: Role) =>
 		data: { role: newRole },
 	})
 
-export const banAccountById = (id: string) =>
-	prisma.user.update({ where: { id }, data: { status: Status.INACTIVE } })
+export const updateAccountStatus = (id: string, status: Status) =>
+	prisma.user.update({ where: { id }, data: { status } })
 
 export const deleteAccountById = (id: string) => prisma.user.delete({ where: { id } })
