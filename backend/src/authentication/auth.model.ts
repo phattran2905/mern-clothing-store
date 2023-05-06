@@ -16,6 +16,12 @@ export const findUserByEmail = (email: string) =>
 		},
 	})
 
+export const findUserByResetPasswordToken = (resetPasswordToken: string) => prisma.user.findUnique({
+    where: {
+        resetPasswordToken,
+    }
+})
+
 export const createNewUser = ({
 	email,
 	hashedPassword,
@@ -29,6 +35,9 @@ export const createNewUser = ({
 			hashedPassword,
 		},
 	})
+
+export const updateResetPasswordToken = (id: string, newToken: string | null) =>
+	prisma.user.update({ where: { id }, data: { resetPasswordToken: newToken } })
 
 export const updateJWT = (id: string, newJWT: string | null) =>
 	prisma.user.update({ where: { id }, data: { jsonWebToken: newJWT } })
