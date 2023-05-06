@@ -1,19 +1,30 @@
-import {PrismaClient} from '@prisma/client';
+import {PrismaClient, Role} from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient()
 
 async function main() {
-    const test = await prisma.user.upsert({
+    const testUser = await prisma.user.upsert({
         where: {email: 'test@test.com'},
         update: {},
         create: {
             email: 'test@test.com',
-            hashedPassword: bcrypt.hashSync("123", bcrypt.genSaltSync())
+            hashedPassword: bcrypt.hashSync("123456", bcrypt.genSaltSync())
         }
     })
 
-    console.log(test)
+    const testAdmin = await prisma.user.upsert({
+        where: {email: 'admin@test.com'},
+        update: {},
+        create: {
+            email: 'admin@test.com',
+            hashedPassword: bcrypt.hashSync("123456", bcrypt.genSaltSync()),
+            role: Role.ADMIN
+        }
+    })
+
+    console.log(testUser)
+    console.log(testAdmin)
 }
 
 main()
