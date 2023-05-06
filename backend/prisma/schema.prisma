@@ -21,7 +21,7 @@ model User {
     id                 String   @id @default(uuid())
     email              String   @unique
     hashedPassword     String?
-    resetPasswordToken String?
+    resetPasswordToken String?  @unique
     jsonWebToken       String?
     role               Role     @default(USER)
     status             Status   @default(ACTIVE)
