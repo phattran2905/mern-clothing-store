@@ -5,6 +5,7 @@ import {
 	deleteAccountById,
 	findAccountById,
 	findAllAccounts,
+	updateAccountRole,
 	updateAccountStatus,
 } from "./account.model"
 import { ErrorWithStatusCode } from "../classes/ErrorWithStatusCode"
@@ -73,7 +74,7 @@ export const removeAccountById = async (req: Request, res: Response, next: NextF
 		const accountId = req.params.id ?? null
 
 		if (currentAdmin.id === accountId) {
-			throw new ErrorWithStatusCode(400, `Can not self delete your logging account.`)
+			throw new ErrorWithStatusCode(400, `Can not delete your logging account.`)
 		}
 
 		const account = await findAccountById(accountId)
@@ -99,7 +100,7 @@ export const updateAccountStatusById = async (req: Request, res: Response, next:
 		const status = req.query.status ?? null
 
 		if (currentAdmin.id === accountId) {
-			throw new ErrorWithStatusCode(400, `Can not self ban your logging account.`)
+			throw new ErrorWithStatusCode(400, `Can not change status of your logging account.`)
 		}
 
 		if (!status) {
@@ -118,13 +119,48 @@ export const updateAccountStatusById = async (req: Request, res: Response, next:
 		if (!updated) {
 			throw new ErrorWithStatusCode(
 				500,
-				`Failed to update the account's status with id ${accountId}`
+				`Failed to change the account's status with id ${accountId}`
 			)
 		}
 
 		return res.status(200).json({ statusCode: 200, message: "OK." })
 	} catch (error) {
-		console.log(error)
+		return next(error)
+	}
+}
+
+export const changeAccountRole = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const currentAdmin = res.locals.user
+		const accountId = req.params.id ?? null
+		const role = req.query.role ?? null
+
+		if (currentAdmin.id === accountId) {
+			throw new ErrorWithStatusCode(400, `Can not change the role of your logging account.`)
+		}
+
+		if (!role) {
+			throw new ErrorWithStatusCode(400, `Can not change role to null`)
+		}
+
+		const account = await findAccountById(accountId)
+		if (!account) {
+			throw new ErrorWithStatusCode(404, "Account is not found.")
+		}
+
+		const newRole =
+			role.toString().toUpperCase() === Role.ADMIN ? Role.ADMIN : Role.USER
+		const updated = await updateAccountRole(accountId, newRole)
+
+		if (!updated) {
+			throw new ErrorWithStatusCode(
+				500,
+				`Failed to change the account's role with id ${accountId}`
+			)
+		}
+
+		return res.status(200).json({ statusCode: 200, message: "OK." })
+	} catch (error) {
 		return next(error)
 	}
 }
