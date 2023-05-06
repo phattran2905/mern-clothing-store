@@ -1,12 +1,46 @@
 import { NextFunction, Request, Response } from "express"
+import bcrypt from "bcrypt"
 import {
+	createAccount,
 	deleteAccountById,
 	findAccountById,
 	findAllAccounts,
 	updateAccountStatus,
 } from "./account.model"
 import { ErrorWithStatusCode } from "../classes/ErrorWithStatusCode"
-import { Status } from "@prisma/client"
+import { Role, Status } from "@prisma/client"
+import { CreateAccountForm } from "./account.schema"
+import { ValidationError } from "../classes/ValidationError"
+
+export const createNewAccount = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const validation = await CreateAccountForm.safeParseAsync(req.body)
+		if (!validation.success) {
+			throw new ValidationError(400, validation.error)
+		}
+
+		const hashedPassword = bcrypt.hashSync(validation.data.password, bcrypt.genSaltSync(12))
+
+		const newAccountData: { email: string; hashedPassword: string; role?: Role } = {
+			email: validation.data.email,
+			hashedPassword,
+		}
+
+		if (validation.data.role) {
+			newAccountData.role =
+				validation.data.role.toUpperCase() === Role.ADMIN ? Role.ADMIN : Role.USER
+		}
+
+		const newAccount = await createAccount(newAccountData)
+		if (!newAccount) {
+			throw new ErrorWithStatusCode(500, `Failed to create new account.`)
+		}
+
+		return res.status(201).json({ statusCode: 201, data: newAccount })
+	} catch (error) {
+		return next(error)
+	}
+}
 
 export const getAllAccounts = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -90,7 +124,7 @@ export const updateAccountStatusById = async (req: Request, res: Response, next:
 
 		return res.status(200).json({ statusCode: 200, message: "OK." })
 	} catch (error) {
-        console.log(error)
+		console.log(error)
 		return next(error)
 	}
 }

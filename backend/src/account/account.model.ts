@@ -6,14 +6,14 @@ export const findAllAccounts = () => prisma.user.findMany()
 
 export const findAccountById = (id: string) => prisma.user.findUnique({ where: { id } })
 
-export const createNewAccount = ({
+export const createAccount = ({
 	email,
 	hashedPassword,
 	role,
 }: {
 	email: string
 	hashedPassword: string
-	role: Role
+	role?: Role
 }) =>
 	prisma.user.create({
 		data: {
