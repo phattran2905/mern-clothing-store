@@ -19,6 +19,7 @@ export const createNewAccount = ({
 		data: {
 			email,
 			hashedPassword,
+			role,
 		},
 	})
 
